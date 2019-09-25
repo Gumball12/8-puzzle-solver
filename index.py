@@ -9,9 +9,27 @@ from collections import deque
 
 """ tools """
 
-# get user input
-def getUserInput():
-  return input("Select solver type [1: DFS, 2: BFS]: ")
+# do input with validation
+def doInput(msg, rules):
+  inpt = input(msg)
+  validated = True
+
+  for rule in rules:
+    validated = validated & rule(inpt)
+
+  return inpt if validated else False
+
+# take user input with rules
+def takeUserInput(msg, rules, wrongMsg = None):
+  inpt = doInput(msg, rules)
+
+  while not inpt:
+    if (wrongMsg != None):
+      print(wrongMsg(inpt))
+
+    inpt = doInput(msg, rules)
+
+  return inpt
 
 # generate an array
 def getArray(len):
@@ -110,10 +128,7 @@ class Puzzle:
     else: # wroing direction
       return False
 
-    # unmutable method
-    # self.matrix = arrayToMatrix(swap(arr, ind, swapInd), self.size)
-
-    # return new Puzzle
+    # return new Puzzle (unmutable method)
     return Puzzle(arrayToMatrix(swap(arr, ind, swapInd), self.size))
 
   # check target is movable
@@ -145,23 +160,25 @@ class Puzzle:
 
 # process
 def process():
-  # create puzzle instances
-  size = 4
+  # take user input to determine size
+  size = int(takeUserInput('Determine size [2 ~ 10]: ', [
+    lambda inpt: 2 <= int(inpt),
+    lambda inpt: int(inpt) <= 10
+  ], lambda inpt: 'Wrong input type: ' + str(inpt)))
 
+  # create puzzle instances
   puzzle = Puzzle(None, size)
-  # puzzle = Puzzle([[1, 7, 4], [8, 0, 2], [3, 6, 5]])
-  # puzzle = Puzzle([[1, 2, 5], [3, 4, 8], [0, 6, 7]])
+  # puzzle = Puzzle([[1, 4, 7], [8, 3, 2], [6, 0, 5]]) # cannot solve
   goal = Puzzle(arrayToMatrix(getArray(size * size), size)) # goal state
 
-  print('Create Puzzle instance', puzzle)
-  print('Create goal state', goal)
+  print('\nCreate Puzzle instance', puzzle)
+  print('Create goal state', goal, '\n')
 
-  # get user input
-  inpt = getUserInput()
-
-  while inpt != "1" and inpt != "2":
-    print("Wrong type: " + inpt)
-    inpt = getUserInput()
+  # take user input to determine solver type
+  solverType = takeUserInput('Select solver type [1: DFS, 2: BFS]: ', [
+    lambda inpt: 1 <= int(inpt),
+    lambda inpt: int(inpt) <= 2
+  ], lambda inpt: 'Wrong solver type: ' + str(inpt))
 
   # define arrays using deque
   opens = deque([puzzle])
@@ -173,13 +190,11 @@ def process():
     x = opens.popleft()
 
     if (str(x) == str(goal)): # when success
-      print('length of closed:', len(closes))
+      print('\nlength of closed:', len(closes))
       return True
     else: # before success
       # put x into the closes array
       closes.append(str(x))
-
-      # append(opens, *[x.move(d) for d in range(0, 4) if x.isMovable()[d] and str(x.move(d)) not in closes])
 
       movable = x.isMovable()
 
@@ -189,7 +204,7 @@ def process():
           moved = x.move(d)
 
           if (str(moved) not in closes):
-            if (inpt == 1): # DFS
+            if (solverType == 1): # DFS
               opens.appendleft(moved)
             else: # BFS
               opens.append(moved)
@@ -200,7 +215,6 @@ def process():
 if __name__ == "__main__":
   if (testing()):
     print('==========\nSuccess unit testing\n==========\n')
-    result = process()
-    print("solved" if result else "failed")
+    print("result: solved." if process() else "result: failed.")
   else:
     print('==========\nFailed to unit testing\n==========\n')
