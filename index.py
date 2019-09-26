@@ -152,7 +152,13 @@ class Puzzle:
     return ', '.join(map(str, self.matrix)) # map: string guard
 
 # process
-def process():
+def process(isIPython = False):
+  IPython = None
+
+  # dynamic import IPython module
+  if (isIPython):
+    IPython = __import__('IPython')
+
   # take user input to determine size
   size = int(takeUserInput('Determine size [2 ~ 10]: ', [
     lambda inpt: 2 <= int(inpt),
@@ -161,7 +167,7 @@ def process():
 
   # create puzzle instances
   puzzle = Puzzle(None, size)
-  puzzle = Puzzle([[7, 1, 2], [4, 6, 5], [3, 8, 0]])
+  # puzzle = Puzzle([[7, 1, 2], [4, 6, 5], [3, 8, 0]])
   # puzzle = Puzzle([[1, 4, 7], [8, 3, 2], [6, 0, 5]]) # hard solve
   goal = Puzzle(arrayToMatrix(getArray(size * size), size)) # goal state
 
@@ -192,6 +198,11 @@ def process():
 
       movable = x.isMovable()
 
+      # print process
+      if (isIPython):
+        IPython.display.clear_output()
+        print('processing...', len(opens), len(closes))
+
       # generate x's children
       for d in range(0, 4):
         if (movable[d]):
@@ -207,8 +218,12 @@ def process():
 
 # init
 if __name__ == '__main__':
+  # is in ipython?
+  isIPython = False
+
+  # start
   if (testing()):
     print('==========\nSuccess unit testing\n==========\n')
-    print('result: solved.' if process() else 'result: failed.')
+    print('result: solved.' if process(isIPython) else 'result: failed.')
   else:
     print('==========\nFailed to unit testing\n==========\n')
