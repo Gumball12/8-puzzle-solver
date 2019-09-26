@@ -80,13 +80,6 @@ def testing():
 
   return True # success
 
-# append to array with multiple arguments
-def append(arr, *items):
-  for i in items:
-    arr.append(i)
-
-  return arr
-
 """ process """
 
 # Puzzle class
@@ -168,17 +161,18 @@ def process():
 
   # create puzzle instances
   puzzle = Puzzle(None, size)
-  # puzzle = Puzzle([[1, 4, 7], [8, 3, 2], [6, 0, 5]]) # cannot solve
+  puzzle = Puzzle([[7, 1, 2], [4, 6, 5], [3, 8, 0]])
+  # puzzle = Puzzle([[1, 4, 7], [8, 3, 2], [6, 0, 5]]) # hard solve
   goal = Puzzle(arrayToMatrix(getArray(size * size), size)) # goal state
 
   print('\nCreate Puzzle instance', puzzle)
   print('Create goal state', goal, '\n')
 
   # take user input to determine solver type
-  solverType = takeUserInput('Select solver type [1: DFS, 2: BFS]: ', [
+  solverType = int(takeUserInput('Select solver type [1: DFS, 2: BFS]: ', [
     lambda inpt: 1 <= int(inpt),
     lambda inpt: int(inpt) <= 2
-  ], lambda inpt: 'Wrong solver type: ' + str(inpt))
+  ], lambda inpt: 'Wrong solver type: ' + str(inpt)))
 
   # define arrays using deque
   opens = deque([puzzle])
@@ -212,9 +206,9 @@ def process():
   return False
 
 # init
-if __name__ == "__main__":
+if __name__ == '__main__':
   if (testing()):
     print('==========\nSuccess unit testing\n==========\n')
-    print("result: solved." if process() else "result: failed.")
+    print('result: solved.' if process() else 'result: failed.')
   else:
     print('==========\nFailed to unit testing\n==========\n')
